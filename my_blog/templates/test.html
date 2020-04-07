@@ -1,0 +1,48 @@
+<head>
+    <link rel="stylesheet" href="../static/md_css/monokai.css">
+</head>
+<body>
+
+<div class="col-12">
+    <p></p><div class="codehilite"><pre><span></span><code><span class="c">&lt;!-- 载入静态文件 --&gt;</span>
+{% load staticfiles %}
+
+<span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="c">&lt;!-- 网站主语言 --&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"zh-cn"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="c">&lt;!-- 网站采用的字符编码 --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"utf-8"</span> <span class="p">/&gt;</span>
+  <span class="c">&lt;!-- 预留网站标题的位置 --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>{% block title %}{% endblock %}<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+  <span class="c">&lt;!-- 引入bootstrap的css文件 --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">link</span>
+    <span class="na">rel</span><span class="o">=</span><span class="s">"stylesheet"</span>
+    <span class="na">href</span><span class="o">=</span><span class="s">"{% static 'bootstrap/css/bootstrap.min.css' %}"</span>
+  <span class="p">/&gt;</span>
+  <span class="c">&lt;!-- 引入monikai.css --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">"stylesheet"</span> <span class="na">href</span><span class="o">=</span><span class="s">"{% static 'md_css/monokai.css' %}"</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+  <span class="c">&lt;!-- 引入导航栏 --&gt;</span>
+  {% include 'header.html' %}
+  <span class="c">&lt;!-- 预留具体页面的位置 --&gt;</span>
+  {% block content %} 
+  {% endblock content %}
+  <span class="c">&lt;!-- 引入注脚 --&gt;</span>
+  {% include 'footer.html' %}
+  <span class="c">&lt;!-- bootstrap.js 依赖 jquery.js 和popper.js，因此在这里引入 --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">"{% static 'jquery/jquery-3.4.1.min.js' %}"</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">"{% static 'popper/popper.min.js' %}"</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="c">&lt;!-- 引入bootstrap的js文件 --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">"{% static 'bootstrap/js/bootstrap.min.js' %}"</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="c">&lt;!-- 提醒弹窗用 --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">"{% static 'layer/layer.js' %}"</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div><p></p>
+  </div>
+
+    
+</body>

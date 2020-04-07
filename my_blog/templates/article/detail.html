@@ -13,14 +13,20 @@
     <!-- 标题及作者 -->
     <h1 class="col-12 mt-4 mb-4">{{ article.title }}</h1>
     <div class="col-12 alert alert-success">
-      作者：{{ article.author }} 
+      作者：{{ article.author }}
+      
+      {% if user == article.author %}
       .<a href="#" onclick="confirm_safe_delete()">删除文章</a>
-      .<a href="{% url "article:article_update" article.id %}">编辑文章</a>
+      .<a href="{% url 'article:article_update' article.id %}">编辑文章</a>
       <form method="POST" id="safe_delete" style="display: none;" action="{% url 'article:article_safe_delete' article.id %}">
         {% csrf_token %}
         <button type="submit">发送</button>
       </form>
+      {% endif %}
     </div>
+    <div class="col-12 alert alert-success">      
+      浏览：{{ article.total_views }}      
+    </div> 
     <!-- 文章正文 -->
     <div class="col-12">
       <p>{{ article.body | safe }}</p>

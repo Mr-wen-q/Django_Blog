@@ -143,4 +143,8 @@ EMAIL_USE_TLS = True
 # 默认的发件人
 DEFAULT_FROM_EMAIL = 'wenq的博客 <wenq0818@163.com>'
 
+# 媒体文件
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
 

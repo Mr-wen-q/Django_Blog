@@ -2,16 +2,42 @@ import markdown
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.http import HttpResponse
+from django.db.models import Q
 from .forms import ArticlePostForm
 from .models import ArticlePost
+from django.contrib.auth.decorators import login_required
 
 def article_list(request):
     """文章列表"""
-    # 取出所有博客文章
-    articles = ArticlePost.objects.all()
+    search = request.GET.get('search')
+    order = request.GET.get('order')
+    if search:
+        if order == 'total_views':
+            article_list = ArticlePost.objects.filter(
+                Q(title_icontains=search) |
+                Q(body_icontains=search)
+            ).order_by('-total_views')
+        else:
+            article_list = ArticlePost.objects.filter(
+                Q(title_icontains=search) |
+                Q(body_icontains=search)
+            )
+    else:
+        search = ''
+        if order == 'total_views':
+            article_lists = ArticlePost.objects.all().order_by('-total_views')
+        else:
+            article_lists = ArticlePost.objects.all()
+            order = 'nomal'    
+    # 每页显示1篇文章
+    paginator = Paginator(article_lists, 3)
+    # 获取url中页面
+    page = request.GET.get('page')
+    articles = paginator.get_page(page)
     # 需要传递给模板（templates）的对象
-    context = { 'articles': articles }
+    context = { 'articles': articles, 'order':order, 'search': search }
     # render函数：载入模板，并返回context对象
     return render(request, 'article/list.html', context)
 
@@ -20,6 +46,9 @@ def article_detail(request, id):
     """文章详情"""
     article = ArticlePost.objects.get(id=id)
 
+    # 浏览数+1
+    article.total_views += 1
+    article.save(update_fields=['total_views'])
     # 将markdown语法渲染成html样式
     article.body = markdown.markdown(article.body,
         extensions=[
@@ -34,6 +63,7 @@ def article_detail(request, id):
 
 def article_create(request):
     """写文章"""
+    
     # 判断用户是否提交数据
     if request.method == "POST":
         # 将提交的数据赋值到表单实例中
@@ -45,7 +75,10 @@ def article_create(request):
             # 指定数据库中 id=1 的用户为作者
             # 如果你进行过删除数据表的操作，可能会找不到id=1的用户
             # 此时请重新创建用户，并传入此用户的id
-            new_article.author = User.objects.get(id=1)
+            # new_article.author = User.objects.get(id=id)
+            # 作者为当前登陆用户
+            new_article.author = request.user
+            print(request.user)
             # 将新文章保存到数据库中
             new_article.save()
             # 完成后返回到文章列表
@@ -71,15 +104,19 @@ def article_delete(request, id):
     # 完成删除后返回文章列表
     return redirect("article:article_list")
 
+@login_required(login_url='/userprofile/login/')
 def article_safe_delete(request, id):
     """安全删除"""
-    if request.method == 'POST':
-        article = ArticlePost.objects.get(id=id)
+    article = ArticlePost.objects.get(id=id)
+    if request.user != article.author:
+        return HttpResponse('你无权删除此文章')
+    if request.method == 'POST':       
         article.delete()
         return redirect("article:article_list")
     else:
         return HttpResponse("仅允许post请求")
 
+@login_required(login_url='/userprofile/login/')
 def article_update(request, id):
     """
     更新文章的视图函数
@@ -91,6 +128,8 @@ def article_update(request, id):
     # 获取需要修改的具体文章对象
     article = ArticlePost.objects.get(id=id)
     # 判断用户是否为 POST 提交表单数据
+    if request.user != article.author:
+        return HttpResponse('你无权修改此文章')
     if request.method == "POST":
         # 将提交的数据赋值到表单实例中
         article_post_form = ArticlePostForm(data=request.POST)
