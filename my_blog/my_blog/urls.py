@@ -23,6 +23,7 @@ urlpatterns = [
     path('article/', include('article.urls', namespace='article')),
     path('password-reset/', include('password_reset.urls')),
     path('userprofile/', include('userprofile.urls', namespace='userprofile')),
+    path('comment/', include('comment.urls', namespace='comment')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

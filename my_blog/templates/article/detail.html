@@ -9,30 +9,111 @@
 
 <!-- 文章详情 -->
 <div class="container">
-  <div class="row">
-    <!-- 标题及作者 -->
-    <h1 class="col-12 mt-4 mb-4">{{ article.title }}</h1>
-    <div class="col-12 alert alert-success">
-      作者：{{ article.author }}
-      
-      {% if user == article.author %}
-      .<a href="#" onclick="confirm_safe_delete()">删除文章</a>
-      .<a href="{% url 'article:article_update' article.id %}">编辑文章</a>
-      <form method="POST" id="safe_delete" style="display: none;" action="{% url 'article:article_safe_delete' article.id %}">
-        {% csrf_token %}
-        <button type="submit">发送</button>
-      </form>
-      {% endif %}
+  <div class="row" id="article_body">
+    <div class="col-9">
+      <!-- 标题及作者 -->
+      <h1 class="col-12 mt-4 mb-4">{{ article.title }}</h1>
+      <div class="col-12 alert alert-success">
+        作者：{{ article.author }} {% if user == article.author %} .<a
+          href="#"
+          onclick="confirm_safe_delete()"
+          >删除文章</a
+        >
+        .<a href="{% url 'article:article_update' article.id %}">编辑文章</a>
+        <form
+          method="POST"
+          id="safe_delete"
+          style="display: none;"
+          action="{% url 'article:article_safe_delete' article.id %}"
+        >
+          {% csrf_token %}
+          <button type="submit">发送</button>
+        </form>
+        {% endif %}
+      </div>
+      <div class="col-12 alert alert-success">
+        浏览：{{ article.total_views }}
+      </div>
     </div>
-    <div class="col-12 alert alert-success">      
-      浏览：{{ article.total_views }}      
-    </div> 
+
+    <!-- 新增目录 -->
+    <div class="col-3 mt-4">
+      <h4><strong>目录</strong></h4>
+      <hr />
+      <div>
+        {{ toc|safe }}
+      </div>
+    </div>
+
     <!-- 文章正文 -->
-    <div class="col-12">
+    <div class="col-lg-8 col-md-9" id="mian">
+      <style>
+        div#article_body p img {
+          max-width: 95%;
+          box-shadow: 0 0 50px grey;
+          margin-bottom: 30px;
+          border-radius: 20px;
+        }
+        div#article_body pre {
+          color: #f8f8f2;
+        }
+        div#article_body span.err {
+          color: #f8f8f2;
+        }
+      </style>
       <p>{{ article.body | safe }}</p>
     </div>
   </div>
+      <!-- 评论输入 -->
+      <br />
+      {% if user.is_authenticated %}
+      <div>
+        <form action="{% url 'comment:post_comment' article.id %}" method="POST">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="body">
+              <strong>回复</strong>
+            </label>
+            <textarea
+              type="text"
+              class="form-control"
+              id="body"
+              name="body"
+              rows="2"
+            ></textarea>
+            <div>
+              <button type="submit" class="btn btn-primary">发送</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      {% else %}
+      <br />
+      <h5 class="row justify-content-center">
+        请<a href="{% url 'userprofile:login' %}">登陆</a>后再回复。
+      </h5>
+      <br />
+      {% endif %}
+      <!-- 显示评论 -->
+      <h4>共有{{ comments.count }}条评论</h4>
+      <div>
+        {% for comment in comments %}
+        <hr />
+        <p>
+          <strong style="color: pink;">
+            {{ comment.user }} </strong
+          >在
+          <span style="color: green;">
+            {{ comment.created|date:"Y-m-d H:i:s" }} </span
+          >时说：
+        </p>
+        <pre style="font-family: inherit; font-size: 1em;">
+        {{ comment.body }}</pre
+        >
+        {% endfor %}
+      </div>
 </div>
+
 
 <script>
   // 删除文章的函数
@@ -40,10 +121,10 @@
     layer.open({
       title: "确认删除",
       content: "确认删除这篇文章吗？",
-      yes: function(index, layero) {
+      yes: function (index, layero) {
         $("form#safe_delete button").click();
         layer.close(index);
-      }
+      },
     });
   }
 </script>
