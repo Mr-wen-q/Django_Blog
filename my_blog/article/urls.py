@@ -1,4 +1,4 @@
-from . import views
+from article import views
 from django.urls import path
 
 # Djiango2.0必须加app_name

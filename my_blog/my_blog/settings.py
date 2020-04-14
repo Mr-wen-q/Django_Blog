@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'article',
     'userprofile',
     'comment',
+    'taggit',
     'password_reset',
     'django.contrib.admin',
     'django.contrib.auth',
