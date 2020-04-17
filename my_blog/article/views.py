@@ -7,9 +7,11 @@ from django.http import HttpResponse
 from django.db.models import Q
 from comment.models import Comment
 from .forms import ArticlePostForm
+from comment.forms import CommentForm
 from .models import ArticlePost, ArticleColumn
 from django.contrib.auth.decorators import login_required
 from PIL import Image
+
 
 def article_list(request):
     """文章列表"""
@@ -22,41 +24,43 @@ def article_list(request):
 
     if search:
         article_lists = article_lists.filter(
-                Q(title__icontains=search) |
-                Q(body__icontains=search)
-            ).order_by('-total_views')
+            Q(title__icontains=search) |
+            Q(body__icontains=search)
+        ).order_by('-total_views')
     else:
         search = ''
 
     # 查询集排序
     if order == 'total_views':
         article_lists = article_lists.order_by('-total_views')
-    
+
     # 栏目查询集
     if column is not None and column.isdigit():
-        article_lists = article_lists.filter(column=column) 
+        article_lists = article_lists.filter(column=column)
 
     if tag and tag != 'None':
         # 在tags字段中过滤name为tag的数据条目
-        article_lists = article_lists.filter(tags__name__in=[tag])   
-    
+        article_lists = article_lists.filter(tags__name__in=[tag])
+
     # 每页显示1篇文章
-    paginator = Paginator(article_lists, 3)
+    paginator = Paginator(article_lists, 10)
     # 获取url中页面
     page = request.GET.get('page')
     articles = paginator.get_page(page)
     # 需要传递给模板（templates）的对象
-    context = { 
-        'articles': articles, 
-        'order':order, 
-        'search': search, 
+    context = {
+        'articles': articles,
+        'order': order,
+        'search': search,
         'column': column,
-        'tag':tag,
-        }
+        'tag': tag,
+    }
     # render函数：载入模板，并返回context对象
     return render(request, 'article/list.html', context)
 
 # 文章详情
+
+
 def article_detail(request, id):
     """文章详情"""
     article = ArticlePost.objects.get(id=id)
@@ -65,20 +69,25 @@ def article_detail(request, id):
     # 将markdown语法渲染成html样式,Markdown方法单独把toc提取出来
     md = markdown.Markdown(
         extensions=[
-        # 包含 缩写、表格等常用扩展
-        'markdown.extensions.extra',
-        # 语法高亮扩展
-        'markdown.extensions.codehilite',
-        # 文章目录扩展
-        'markdown.extensions.toc'
+            # 包含 缩写、表格等常用扩展
+            'markdown.extensions.extra',
+            # 语法高亮扩展
+            'markdown.extensions.codehilite',
+            # 文章目录扩展
+            'markdown.extensions.toc'
         ])
-        # convert将body渲染为html
+    # convert将body渲染为html
     article.body = md.convert(article.body)
     # 取出文章评论
     comments = Comment.objects.filter(article=id)
-
-    context = { 'article': article, 'toc':md.toc, 'comments':comments }
+    comment_form = CommentForm()
+    context = {
+        'article': article,
+        'toc': md.toc,
+        'comments': comments,
+        'comment_form': comment_form}
     return render(request, 'article/detail.html', context=context)
+
 
 def article_create(request):
     """写文章"""
@@ -93,7 +102,8 @@ def article_create(request):
             # 作者为当前登陆用户
             new_article.author = request.user
             if request.POST['column'] != 'none':
-                new_article.column = ArticleColumn.objects.get(id=request.POST['column'])
+                new_article.column = ArticleColumn.objects.get(
+                    id=request.POST['column'])
             # 将新文章保存到数据库中
             new_article.save()
             # 保存tags的多对多关系
@@ -109,9 +119,10 @@ def article_create(request):
         article_post_form = ArticlePostForm()
         columns = ArticleColumn.objects.all()
         # 赋值上下文
-        context = { 'article_post_form': article_post_form, 'columns': columns }
+        context = {'article_post_form': article_post_form, 'columns': columns}
         # 返回模板
         return render(request, 'article/create.html', context)
+
 
 def article_delete(request, id):
     """删除文章"""
@@ -122,17 +133,19 @@ def article_delete(request, id):
     # 完成删除后返回文章列表
     return redirect("article:article_list")
 
+
 @login_required(login_url='/userprofile/login/')
 def article_safe_delete(request, id):
     """安全删除"""
     article = ArticlePost.objects.get(id=id)
     if request.user != article.author:
         return HttpResponse('你无权删除此文章')
-    if request.method == 'POST':       
+    if request.method == 'POST':
         article.delete()
         return redirect("article:article_list")
     else:
         return HttpResponse("仅允许post请求")
+
 
 @login_required(login_url='/userprofile/login/')
 def article_update(request, id):
@@ -156,13 +169,16 @@ def article_update(request, id):
             # 保存新写入的 title、body 数据并保存
             article.title = request.POST['title']
             article.body = request.POST['body']
-            # 标签更新
+            # 图片更新
+            # print(article.avatar)
             if request.FILES.get('avatar'):
                 article.avatar = request.FILES.get('avatar')
+            # 标签更新
             article.tags.set(*request.POST.get('tags').split(','), clear=True)
             # 栏目更新
             if request.POST['column'] != 'none':
-                article.column = ArticleColumn.objects.get(id=request.POST['column'])
+                article.column = ArticleColumn.objects.get(
+                    id=request.POST['column'])
             else:
                 article.column = None
             article.save()
@@ -178,13 +194,11 @@ def article_update(request, id):
         article_post_form = ArticlePostForm()
         columns = ArticleColumn.objects.all()
         # 赋值上下文，将 article 文章对象也传递进去，以便提取旧的内容
-        context = { 
-            'article': article, 
-            'article_post_form': article_post_form, 
+        context = {
+            'article': article,
+            'article_post_form': article_post_form,
             'columns': columns,
-            'tags':','.join([x for x in article.tags.names()]),
-            }
+            'tags': ','.join([x for x in article.tags.names()]),
+        }
         # 将响应返回到模板中
         return render(request, 'article/update.html', context)
-
-

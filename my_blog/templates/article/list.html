@@ -104,13 +104,16 @@
       <!-- 注脚 -->
       <p>
         <!-- 附加信息 -->
-        <span style="color: green;">
+        <span>
+          <i class="fas fa-eye" style="color: lightskyblue;"></i>
           {{ article.total_views }} 浏览&nbsp;&nbsp;&nbsp;
         </span>
-        <span style="color: blue;">
+        <span>
+          <i class="fas fa-comments" style="color: yellowgreen;"></i>
           {{ article.created|date:'Y-m-d' }} 发布&nbsp;&nbsp;&nbsp;
         </span>
-        <span style="color: darkred;">
+        <span>
+          <i class="fas fa-clock" style="color: pink;"></i>
           {{ article.updated|date:'Y-m-d H:i' }} 更新&nbsp;&nbsp;&nbsp;
         </span>
       </p>

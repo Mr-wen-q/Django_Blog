@@ -1,6 +1,5 @@
 <!-- extends表明此页面继承自 base.html 文件 -->
 {% extends "base.html" %} {% load staticfiles %}
-
 <!-- 写入 base.html 中定义的 title -->
 {% block title %} 文章详情 {% endblock title %}
 
@@ -9,6 +8,8 @@
 
 <!-- 文章详情 -->
 <div class="container">
+  <script src="{% static 'ckeditor/ckeditor/plugins/prism/lib/prism/prism_patched.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'prism/prism.css' %}">
   <div class="row" id="article_body">
     <div class="col-9">
       <!-- 标题及作者 -->
@@ -37,13 +38,28 @@
     </div>
 
     <!-- 新增目录 -->
-    <div class="col-3 mt-4">
-      <h4><strong>目录</strong></h4>
-      <hr />
-      <div>
-        {{ toc|safe }}
+    <div id="sidebar" class="sidebar">
+      <div class="sideBar__inner">
+        <h4><strong>目录</strong></h4>
+        <hr />
+        <div>
+          {{ toc|safe }}
+        </div>
       </div>
     </div>
+    <!-- 侧边栏样式 -->
+    <style>
+      .sideBar {
+        will-change: min-height;
+      }
+
+      .sideBar__inner {
+        transform: translate(0, 0);
+        transform: translate3d(0, 0, 0);
+        will-change: position, transform;
+      }
+    </style>
+    
 
     <!-- 文章正文 -->
     <div class="col-lg-8 col-md-9" id="mian">
@@ -74,13 +90,17 @@
             <label for="body">
               <strong>回复</strong>
             </label>
-            <textarea
+            <!-- <textarea
               type="text"
               class="form-control"
               id="body"
               name="body"
               rows="2"
-            ></textarea>
+            ></textarea> -->
+            <div>
+              {{ comment_form.media }}
+              {{ comment_form.body }}
+            </div>
             <div>
               <button type="submit" class="btn btn-primary">发送</button>
             </div>
@@ -108,7 +128,7 @@
           >时说：
         </p>
         <pre style="font-family: inherit; font-size: 1em;">
-        {{ comment.body }}</pre
+        {{ comment.body|safe }}</pre
         >
         {% endfor %}
       </div>
@@ -128,4 +148,18 @@
     });
   }
 </script>
+{% block script %} 
+<script>
+  $(".django-ckeditor-widget").removeAttr('style');
+</script>
+<script src="{% static 'sticky_sidebar/jquery.sticky-sidebar.min.js' %}"> 
+</script>
+<script type="text/javascript">
+  $('#sidebar').stickySidebar({
+    topSpacing: 20,
+    bottomSpacing: 20,
+  });
+</script>
+{% endblock script %}
+
 {% endblock content %}
