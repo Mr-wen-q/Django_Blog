@@ -1,0 +1,52 @@
+{% extends "base.html" %} 
+{% load staticfiles %}
+
+{% block title %} 
+    通知 
+{% endblock title %}
+ 
+{% block content %}
+<div class="container">
+  <div class="row mt-4 ml-4">
+    <span class="nav-link"><a href="{% url 'notice:list' %}" class="btn btn-warning" role="button"
+      >未读通知</a
+    ></span>
+    <span class="nav-link"><a href="{% url 'notice:history' %}" class="btn btn-warning" role="button"
+      >历史通知</a
+    ></span>
+    <span class="nav-link"><a href="{% url 'notice:update' %}" class="btn btn-warning" role="button"
+      >清空通知</a
+    ></span>
+  </div>
+  <!-- 未读通知 -->
+  <div class="row mt-2 ml-4">
+    <ul class="list-group">
+      {% for notice in notices %}
+      <li class="list-group-item" id="notice_link">
+        <a
+          href="{% url 'notice:update' %}?article_id={{ notice.target.id }}&notice_id={{ notice.id }}#comment_elem_{{ notice.action_object.id }}"
+          target="_blank"
+        >
+          <span style="color: #5879fb;">
+            {{ notice.actor }}
+          </span>
+          在<span style="color: #01a252;">{{ notice.target }}</span>
+          {{ notice.verb }}
+        </a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ notice.timestamp|date:'Y-m-d H:i' }}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<style>
+  #notice_link a:link {
+      color:nlack;
+  }
+
+  #notice_link a:visited {
+      color:lightgref;
+  }
+</style>
+{% endblock content %}

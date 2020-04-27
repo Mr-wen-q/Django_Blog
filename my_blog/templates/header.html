@@ -1,3 +1,7 @@
+<!-- 引入通知模板 -->
+{% load notifications_tags %}
+{% notifications_unread as unread_count %}
+
 <!-- 定义导航栏 -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
@@ -14,11 +18,6 @@
         <!-- Django的 if 模板语句 -->
         {% if user.is_authenticated %}
         <!-- 如果用户已经登录，则显示用户名下拉框 -->
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'article:article_create' %}"
-            >写文章</a
-          >
-        </li>
         <li class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"
@@ -29,9 +28,30 @@
             aria-haspopup="true"
             aria-expanded="false"
           >
+          <!-- 添加消息通知小红点 -->
+            {% if unread_count %}
+            <svg viewBox="0 0 8 8"
+                width="8px"
+                height="8px">
+                  <circle cx="4"
+                          cy="4"
+                          r="4"
+                          fill="#ff6b6b"></circle>
+            </svg>
+            {% endif %}
+
             {{ user.username }}
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            
+            <a class="dropdown-item" href="{% url 'notice:list' %}">通知
+              {% if unread_count %}
+              <span class="badge badge-danger">{{ unread_count }}</span>
+              {% endif %}
+            </a>
+            <a class="dropdown-item" href="{% url 'article:article_create' %}"
+              >写文章</a
+            >
             <a class="dropdown-item" href="{% url 'userprofile:logout' %}"
               >退出登录</a
             >

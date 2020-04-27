@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,23 +28,50 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTHENTICATION_BACKENDS = (
+    # DJANGO后台可独立于allauth登录
+    'django.contrib.auth.backends.ModelBackend',
+    # 配置allauth独有的认证方法，如email认证
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 # Application definition
 
+
 INSTALLED_APPS = [
+    'simpleui',
     'article',
     'userprofile',
     'comment',
     'taggit',
     'ckeditor',
     'password_reset',
+    'mptt',
+    'notifications',
+    'notice',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # allauth启动必须项
+    'django.contrib.sites',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+
+    # 可能的第三方登录
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.weibo',
 ]
+
+#  设置站点
+SITE_ID = 1
+# 登录成功后重定向地址
+LOGIN_REDIRECT_URL = '/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,6 +100,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'my_blog.wsgi.application'
 
@@ -131,7 +160,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
-    )
+)
 
 # SMTP服务器，改为你的邮箱的smtp!
 EMAIL_HOST = 'smtp.163.com'
@@ -155,8 +184,8 @@ CKEDITOR_CONFIGS = {
     # django-ckeditor默认使用default配置
     'default': {
         # 编辑器宽度自适应
-        'width':'auto',
-        'height':'250px',
+        'width': 'auto',
+        'height': '250px',
         # tab键转换空格数
         'tabSpaces': 4,
         # 工具栏风格
@@ -164,7 +193,7 @@ CKEDITOR_CONFIGS = {
         # 工具栏按钮
         'toolbar_Custom': [
             # 表情 代码块
-            ['Smiley', 'CodeSnippet'], 
+            ['Smiley', 'CodeSnippet'],
             # 字体风格
             ['Bold', 'Italic', 'Underline', 'RemoveFormat', 'Blockquote'],
             # 字体颜色
@@ -181,3 +210,52 @@ CKEDITOR_CONFIGS = {
     }
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['file', 'mail_admins'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    }
+}

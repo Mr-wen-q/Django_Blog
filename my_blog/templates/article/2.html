@@ -1,0 +1,71 @@
+<div class="{% if comment.reply_to %}
+offset-1 col-11
+{% else %}
+col-12
+{% endif %}"
+>
+<hr>
+<p>
+<strong style="color: pink">
+{{ comment.user }}
+</strong> 
+
+{% if comment.reply_to %}
+<i class="far fa-arrow-alt-circle-right" 
+   style="color: cornflowerblue;"
+></i>
+<strong style="color: pink">
+    {{ comment.reply_to }}
+</strong> 
+{% endif %}
+
+</p>
+<div>{{ comment.body|safe }}</div>
+
+<div>
+<span style="color: gray">
+{{ comment.created|date:"Y-m-d H:i" }}
+</span>
+
+<!-- 加载 modal 的按钮 -->
+{% if user.is_authenticated %}
+<button type="button" 
+    class="btn btn-light btn-sm text-muted" 
+    onclick="load_modal({{ article.id }}, {{ comment.id }})"
+    >
+回复
+</button>
+{% else %}
+<a class="btn btn-light btn-sm text-muted" 
+href="{% url 'userprofile:login' %}"
+>
+回复
+</a>
+{% endif %}
+</div>
+
+<!-- Modal -->
+<div class="modal fade" 
+id="comment_{{ comment.id }}" 
+tabindex="-1" 
+role="dialog" 
+aria-labelledby="CommentModalCenter" 
+aria-hidden="true"
+>
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+<div class="modal-content" style="height: 480px">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">回复 {{ comment.user }}：</h5>
+    </div>
+    <div class="modal-body" id="modal_body_{{ comment.id }}"></div>
+</div>
+
+</div>
+</div>
+
+{% if not comment.is_leaf_node %}
+<div class="children">
+{{ children }}
+</div>
+{% endif %}
+</div>

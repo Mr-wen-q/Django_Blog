@@ -15,11 +15,12 @@ class ArticleColumn(models.Model):
     title = models.CharField(max_length=100, blank=True)
     created = models.DateTimeField(default=timezone.now)
 
-    class Meat:
-        verbose_name = verbose_name_plural = '栏目'
-
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name = verbose_name_plural = '栏目'
+
 
 # 博客文章数据模型
 
@@ -78,3 +79,12 @@ class ArticlePost(models.Model):
             resized_image.save(self.avatar.path)
 
         return article
+
+    def was_created_recently(self):
+        # 检查最近发布文章
+        diff = timezone.now() - self.created
+        if diff.days == 0 and diff.seconds < 60 and diff.seconds >= 0:
+            return True
+        else:
+            return False
+

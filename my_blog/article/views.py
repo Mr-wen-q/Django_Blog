@@ -1,7 +1,6 @@
 import markdown
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.db.models import Q
@@ -10,8 +9,7 @@ from .forms import ArticlePostForm
 from comment.forms import CommentForm
 from .models import ArticlePost, ArticleColumn
 from django.contrib.auth.decorators import login_required
-from PIL import Image
-
+from django.shortcuts import get_object_or_404
 
 def article_list(request):
     """文章列表"""
@@ -63,7 +61,8 @@ def article_list(request):
 
 def article_detail(request, id):
     """文章详情"""
-    article = ArticlePost.objects.get(id=id)
+    # article = ArticlePost.objects.get(id=id)
+    article = get_object_or_404(ArticlePost, id=id)
     article.total_views += 1
     article.save(update_fields=['total_views'])
     # 将markdown语法渲染成html样式,Markdown方法单独把toc提取出来
