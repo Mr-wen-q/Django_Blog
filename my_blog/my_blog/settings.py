@@ -24,9 +24,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'c3hl29t-j77#v1qr6w+5wggqfg_cwhm36$-4av2_!@b9*)q+du'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['139.224.130.211']
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 AUTHENTICATION_BACKENDS = (
     # DJANGO后台可独立于allauth登录
